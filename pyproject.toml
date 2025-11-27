@@ -1,0 +1,77 @@
+# --- pyproject.toml ---
+
+# ===============================================
+# 1. METADATOS DEL PROYECTO (PEP 621)
+# ===============================================
+# Esta sección le dice a herramientas como pip quién eres
+# y qué versión de Python usas.
+
+[project]
+name = "web-scrapper"
+version = "0.1.0"
+description = "Una breve descripción de lo que hace este proyecto."
+readme = "README.md"  # Opcional, si tienes un README, guardarlo en UTF-8
+requires-python = ">=3.10" # Especifica la versión mínima de Python
+
+authors = [
+  { name = "Juan Arabaolaza", email = "juan.arabaolaza@gmail.com" },
+]
+
+# ===============================================
+# 2. DEPENDENCIAS
+# ===============================================
+
+# --- DEPENDENCIAS DE PRODUCCIÓN ---
+# Aquí van las librerías que tu app NECESITA para funcionar.
+# Sigue dentro de la seccion de [project]
+# (Reemplaza al requirements.txt)
+dependencies = [
+requests = ">=2.32.5"
+beautifulsoup4 = ">=4.14.2"
+lxml = ">=6.0.2"
+#fastapi = ">=0.100.0"
+#pydantic = ">=2.0.0"
+# pandas = "*"  # Descomenta o añade las que necesites
+]
+
+# --- DEPENDENCIAS DE DESARROLLO ---
+# Aquí van las herramientas que TÚ usas para programar,
+# pero que la app no necesita en producción (como Ruff).
+[project.optional-dependencies]
+dev = [
+    "ruff",    # Linter y formateador
+    "pytest",  # Para tests
+]
+
+# ===============================================
+# 3. CONFIGURACIÓN DE HERRAMIENTAS (RUFF)
+# ===============================================
+
+# --- REGLAS DEL LINTER (FLAKE8 + ISORT) ---
+[tool.ruff.lint]
+# Selecciona los grupos de reglas que quieres.
+# E = Errores de Pyflakes
+# F = Errores de Pyflakes (lógica)
+# I = Reglas de 'isort' (ordenar imports)
+# B = Reglas de 'flake8-bugbear' (busca bugs comunes)
+# UP = Reglas de 'pyupgrade' (sugiere código más moderno)
+select = ["E", "F", "I", "B", "UP"]
+
+# Ignora reglas específicas. E501 es "línea demasiado larga".
+# La ignoramos aquí porque el formateador ya se encarga de eso.
+ignore = ["E501"]
+
+
+# --- REGLAS DEL FORMATEADOR (BLACK) ---
+[tool.ruff.format]
+# La longitud máxima de línea. 88 es el estándar de Black.
+docstring-code-line-length = 88
+docstring-code-format = true
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false
+
+[tool.ruff]
+# Esto activa el formato tipo Black
+preview = true

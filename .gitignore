@@ -1,0 +1,14 @@
+# Ignoro el entorno virtual venv
+venv/
+
+# Ignoro el __pycache__
+__pycache*
+
+# Ignoro el .egg-info
+*.egg-info
+
+# Ignoro .vscode
+.vscode/
+
+# Ignoro downloads
+downloads/
