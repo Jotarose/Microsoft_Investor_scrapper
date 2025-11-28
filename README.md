@@ -1,39 +1,50 @@
-# Microsoft Investor Scrapper
+# 📈 Microsoft Financial Intelligent Analyzer
 
-Proyecto en Python para extraer y estructurar los datos financieros publicados en los informes anuales de Microsoft (Investor Relations).
+**De Datos Brutos a Tesis de Inversión: Una Pipeline ETL con IA Generativa.**
 
-Este repositorio contiene un pequeño scrapper orientado a obtener las tablas de estados financieros (p. ej. "INCOME STATEMENTS"), normalizarlas y guardarlas en JSON para su posterior análisis.
+Este proyecto va más allá de un simple *web scraper*. Es una herramienta integral de ingeniería de datos y análisis financiero que automatiza el ciclo de vida de la información corporativa de Microsoft: desde la extracción de datos crudos en informes anuales hasta la generación de tesis de inversión profesionales mediante Inteligencia Artificial y visualización de tendencias.
 
-## Contenido rápido
-
-- **Proyecto**: `web-scrapper` — extrae y guarda datos financieros de los informes anuales de Microsoft.
-- **Lenguaje**: Python 3.10+
-- **Salida**: `downloads/all_ms_financial_data.json` (JSON estructurado por año).
+---
 
 ## Tabla de contenidos
 
-1. [Instalación](#instalacion)
+1. [Instalación y Configuración](#instalación-y-configuración)
 2. [Uso](#uso)
 3. [Estructura del proyecto](#estructura-del-proyecto)
 4. [Funcionalidades principales](#funcionalidades-principales)
-5. [IA con Gemini](#ia-con-gemini)
-6. [Gráficas y visualizaciones](#gráficas-y-visualizaciones)
-7. [Formato de salida](#formato-de-salida)
-8. [Consideraciones importantes](#consideraciones-importantes)
-9. [Contribuir](#contribuir)
-10. [Contacto y licencia](#contacto-y-licencia)
+5. [Resultados y Salidas](#resultados-y-salidas)
+6. [Consideraciones](#consideraciones)
+7. [Contribuir](#contribuir)
+8. [Contacto](#contacto)
 
-## Instalación
+## Instalación y Configuración
 
-Recomendado: crear un entorno virtual y usar `pip`.
+### Prerrequisitos
+* **Python 3.10+**
+* Una API Key de Google Gemini (Obtenla en [Google AI Studio](https://aistudio.google.com/)).
 
-En PowerShell (Windows):
+### Pasos
 
-```powershell
-python -m venv .venv; .\.venv\Scripts\Activate.ps1; pip install -U pip
-pip install -e .
-```
+1.  **Clonar y preparar entorno:**
+    Se recomienda usar un entorno virtual.
 
+    ```bash
+    # En PowerShell
+    python -m venv .venv
+    .\.venv\Scripts\Activate.ps1
+
+    # Instalar dependencias en modo editable
+    pip install -e .[dev]
+    ```
+
+2.  **Configurar Variables de Entorno:**
+    Para activar el analista IA, crea un archivo `.env` en la raíz del proyecto:
+
+    ```env
+    GEMINI_API_KEY=tu_clave_api_aqui
+    ```
+
+---
 Notas:
 
 - Si no usas `pip install -e .`, puedes instalar directamente las dependencias listadas en `pyproject.toml`.
@@ -64,6 +75,23 @@ Al ejecutarlo, el flujo general es:
 
 ## Estructura del proyecto
 
+```plaintext
+.
+├── main.py                  # Orquestador principal del flujo
+├── pyproject.toml           # Gestión de dependencias y metadatos
+├── .env                     # Variables de entorno (API Keys)
+├── src/
+│   ├── client.py            # Cliente HTTP (Scraper)
+│   ├── worker.py            # Lógica de extracción y parsing HTML
+│   ├── gemini_ai.py         # Módulo de Inteligencia Artificial
+│   ├── visualization.py     # Motor de generación de gráficas
+│   └── utils.py             # Herramientas de I/O y limpieza
+├── downloads/
+│   ├── all_ms_financial_data.json  # Dataset final
+│   └── financial_tesis.md          # Reporte de IA
+└── tests/                   # Suite de pruebas unitarias
+```
+
 - `main.py`: Orquestador principal. Gestiona extracción, IA, visualización y guardado de resultados.
 - `pyproject.toml`: Metadatos, dependencias (incluyendo `google-genai`, `matplotlib`, `pandas`, `seaborn`).
 - `README.md`: Este archivo.
@@ -77,240 +105,92 @@ Al ejecutarlo, el flujo general es:
 - `src/`:
   - `__init__.py`: Inicializador del paquete.
   - `client.py`: Cliente HTTP para descargar informes de Microsoft IR.
-    - `MicrosoftIRClient.get_annual_reports()`: Obtiene enlaces a informes anuales.
-    - `MicrosoftIRClient.get_url_content(url)`: Descarga HTML de una URL.
   - `worker.py`: Extracción y parsing de tablas financieras.
-    - `extract_financial_data(client, report)`: Parsea "INCOME STATEMENTS" y devuelve diccionario estructurado.
   - `utils.py`: Helpers para rutas, serialización y guardado.
-    - `handle_file_path(file_name)`: Crea carpeta `downloads/` si no existe.
-    - `parse_data(all_reports)`: Convierte lista de reports a diccionario por año.
-    - `save_data(file_path, report)`: Guarda JSON con manejo de errores.
-    - `save_tesis(file_path, tesis)`: Guarda texto generado por IA.
   - **`gemini_ai.py`** (NUEVO): Análisis con IA usando Gemini 2.5 Pro.
-    - `generate_financial_tesis(financial_data)`: Genera tesis de inversión con análisis profesional.
     - Requiere `GEMINI_API_KEY` en `.env`.
   - **`visualization.py`** (NUEVO): Gráficas y visualizaciones.
-    - `generate_tables(raw_financial_data)`: Crea gráficas de ingresos y rentabilidad.
-    - Limpia valores financieros (símbolos de moneda, paréntesis, comas).
-    - Usa matplotlib + seaborn para visualización profesional.
-- `web_scrapper.egg-info/`: Metadatos generados por pip (ignorar).
 
-## Funcionalidades principales
+## Funcionalidades Principales
 
-### 1. Extracción de datos financieros
+El sistema opera en cuatro fases críticas:
 
-- Descarga automática de informes anuales desde el portal de Investor Relations de Microsoft.
-- Parseo HTML inteligente con `BeautifulSoup` para extraer tablas "INCOME STATEMENTS".
-- Procesamiento paralelo con `ThreadPoolExecutor` para máximo 6 años simultáneamente.
-- Manejo robusto de errores y datos faltantes.
+1.  **Extracción Inteligente (Scraping Avanzado):**
+    * Navegación automática por el portal de *Investor Relations* de Microsoft.
+    * Descarga y parseo de informes anuales históricos.
+    * Extracción quirúrgica de tablas "INCOME STATEMENTS" usando `BeautifulSoup`.
+    * Ejecución paralela mediante `ThreadPoolExecutor` para maximizar la velocidad.
 
-### 2. Análisis con IA (Gemini)
+2.  **Normalización de Datos (ETL):**
+    * Limpieza y estructuración de datos financieros no estandarizados.
+    * Conversión de formatos de moneda, manejo de valores negativos y saneamiento de nulos.
+    * Serialización a JSON estructurado (`downloads/all_ms_financial_data.json`).
 
-- Genera **tesis de inversión profesionales** usando el modelo Gemini 2.5 Pro de Google.
-- Análisis automatizado que incluye:
-  - Transformación del modelo de negocio (Product vs. Service revenue).
-  - Márgenes de beneficio e "Operating Leverage".
-  - Eficiencia de R&D y crecimiento esperado.
-  - Recomendación de compra/mantenimiento/venta.
+3.  **Analista Financiero IA (Gemini 2.5 Pro):**
+    * Integración con **Google Gemini** para interpretar los datos estructurados.
+    * Generación automática de una **Tesis de Inversión** (Buy/Hold/Sell).
+    * Análisis profundo de la transformación del modelo de negocio (Licencias vs. Nube), márgenes operativos y eficiencia de I+D.
 
-### 3. Visualización de datos
+4.  **Visualización de Datos (Business Intelligence):**
+    * Generación de gráficos interactivos con `matplotlib` y `seaborn`.
+    * Análisis visual de la transición de ingresos (*Product vs. Service*).
+    * Comparativa de Crecimiento vs. Rentabilidad (Revenue vs. Net Income).
 
-- Gráficas interactivas usando `matplotlib` y `seaborn`.
-- Comparativa de ingresos por línea de negocio (stacked bar chart).
-- Análisis de crecimiento vs. rentabilidad (dual line chart).
-- Formateo profesional de ejes con separadores de miles.
+---
 
-## IA con Gemini
+## Resultados y Salidas
 
-### Funcionalidad
+El proyecto genera tres tipos de entregables de alto valor:
 
-`src/gemini_ai.py` implementa análisis inteligente de estados financieros:
-
-```python
-from src.gemini_ai import generate_financial_tesis
-
-# Genera un análisis profesional en formato Markdown
-tesis = generate_financial_tesis(financial_data)
-print(tesis)
-```
-
-### Requisitos
-
-1. Crear un archivo `.env` en la raíz del proyecto:
-   ```
-   GEMINI_API_KEY=tu_api_key_aqui
-   ```
-2. Obtener clave API gratuita en [Google AI Studio](https://aistudio.google.com/app/apikey).
-
-### Salida
-
-El análisis incluye:
-
-- **Memo ejecutivo** con resumen del desempeño.
-- **Análisis de márgenes**: Gross Margin, Operating Margin, Net Profit Margin.
-- **Crecimiento**: CAGR de ingresos y EPS.
-- **Recomendación**: Buy/Hold/Sell con justificación fundamentada.
-- **Riesgos identificados**: Basados en tendencias de los últimos 11 años.
-
-Ejemplo de salida guardada en `downloads/financial_tesis.md`.
-
-## Gráficas y visualizaciones
-
-### Funcionalidad
-
-`src/visualization.py` genera visualizaciones automáticas:
-
-```python
-from src.visualization import generate_tables
-
-# Genera dos gráficas profesionales
-generate_tables(financial_data)
-```
-
-### Gráficas generadas
-
-#### 1. Business Model Transformation (Gráfico de barras apiladas)
-
-Muestra la evolución del mix de ingresos:
-
-- **Eje X**: Años (2015–2025)
-- **Eje Y**: Ingresos en millones USD
-- **Categorías**:
-  - Azul oscuro: Ingresos de Productos
-  - Verde: Ingresos de Servicios y otros
-
-**Insight**: Demuestra cómo Microsoft pasó de un modelo orientado a productos (2015) a uno dominado por servicios cloud (2025).
-
-#### 2. Growth vs. Profitability (Gráfico de líneas dual)
-
-Compara crecimiento absoluto con rentabilidad:
-
-- **Línea azul** (con círculos): Total de Ingresos
-- **Línea naranja** (con cuadrados y discontinua): Beneficio Neto
-
-**Insight**: Muestra si la empresa crece manteniéndose rentable o si el crecimiento sacrifica márgenes.
-
-### Limpieza de datos
-
-La función `parse_financial_value()` normaliza valores financieros:
-
-- Elimina símbolos `$` y comas (ej: `"$1,234"` → `1234.0`).
-- Convierte números negativos en paréntesis `(100)` → `-100.0`.
-- Devuelve `0.0` para valores vacíos o no parseables.
-
-La salida en `downloads/all_ms_financial_data.json` es un objeto JSON donde cada clave es un año (como cadena) y su valor es:
-
-- Un objeto con secciones (por ejemplo, `"Revenue:"`, `"Cost of revenue:"`) y dentro de cada sección un diccionario con items y valores.
-- Si la tabla no se encuentra para un año, el valor puede ser la cadena `"Tabla no encontrada"` o un objeto que contenga `"error"`.
-
-Ejemplo resumido (ya presente en `downloads/all_ms_financial_data.json`):
+### 1. Datos Estructurados (JSON)
+**Archivo:** `downloads/all_ms_financial_data.json`  
+Base de datos limpia y lista para ser consumida por otras aplicaciones o analistas.
 
 ```json
-{
-  "2024": {
+"2024": {
     "Revenue:": {
       "Product": "$64,773",
       "Service and other": "180,349",
       "Total revenue": "245,122"
     },
     "Net income": { "Total": "$88,136" }
-  }
 }
 ```
 
-### 2. Análisis IA (`financial_tesis.md`)
+### 2. Tesis de Inversión (Markdown)
+**Archivo**: `downloads/financial_tesis.md`
 
-Documento Markdown con análisis profesional generado por Gemini:
+Un reporte ejecutivo generado por IA que incluye:
+- Memo Ejecutivo: Resumen de desempeño.
+- Análisis de Márgenes: Gross, Operating y Net margins.
+- Veredicto: Recomendación justificada (Ej: "SOBREPONDERAR").
+- Riesgos: Evaluación de competencia y costes de infraestructura IA.
 
-```markdown
-### [INTERNAL MEMO]
+### 3. Visualización Gráfica
+Se generan dashboards visuales para entender la historia detrás de los números:
 
-**Objetivo:** Análisis de inversión de Microsoft (2014–2025)
+- **Business Model Shift**: Gráfico de barras apiladas mostrando cómo los Servicios (Azure/Cloud) han canibalizado y superado a los Productos tradicionales.
 
-**Tesis Principal:**
-Microsoft ha realizado una transformación del modelo de negocio...
-[Análisis detallado de márgenes, crecimiento, riesgos, y recomendación]
-```
+- **Growth vs Profitability:** Gráfico de doble eje para medir el apalancamiento operativo.
 
-Se guarda en `downloads/financial_tesis.md` al ejecutar `main.py`.
+## Consideraciones
 
-### 3. Gráficas interactivas
+- **Ética de Scraping:** Este proyecto respeta los tiempos de respuesta, pero asegúrate de revisar el robots.txt si planeas escalarlo o aumentar la frecuencia de peticiones.
 
-Al ejecutar `main.py`, se muestran dos gráficos matplotlib:
+- **Costes de API:** El uso de Gemini Pro puede tener costes asociados dependiendo de tu cuota en Google Cloud/AI Studio.
 
-- **Gráfico 1**: Stacked bar chart (Product vs Service revenue).
-- **Gráfico 2**: Dual line chart (Total Revenue vs Net Income).
+- **Robustez**: El extractor depende de la estructura HTML de los informes de Microsoft. Si ellos cambian su diseño web radicalmente, el worker.py podría requerir ajustes.
 
-## Consideraciones importantes
+---
 
-### Extracción web
+## Contribuir
+¡Las contribuciones son bienvenidas!
+1. Haz un Fork del proyecto.
+2. Crea una rama (git checkout -b feature/nueva-funcionalidad).
+3. Commit a tus cambios.
+4. Abre un Pull Request.
 
-- **Legal y ética**: Antes de hacer scraping a un sitio público, revisa `robots.txt` y los términos de uso. Este proyecto está pensado para aprender; respeta las políticas de Microsoft.
-- **Robustez HTML**: El HTML de los informes puede variar entre años. El extractor busca texto literal "INCOME STATEMENTS" y clases CSS como `cell-indent`.
-- **Retries**: Para producción, añade reintentos exponenciales y límites de velocidad (`sleep`/backoff).
+---
 
-### IA con Gemini
-
-- **API Key**: Requiere `GEMINI_API_KEY` en `.env`. Las solicitudes sin clave o con cuota agotada fallarán gracefully.
-- **Idioma**: El análisis se genera en español (configurable en `src/gemini_ai.py`).
-- **Costos**: Google ofrece cuota gratuita para desarrollo. Consulta [pricing](https://ai.google.dev/pricing) para uso en producción.
-
-### Visualizaciones
-
-- **Dependencias gráficas**: Usa `matplotlib` + `seaborn`. En entornos sin display (servidores), asegúrate de usar backend no interactivo (`Agg`).
-- **Formatos numéricos**: Se asume formato USD. Ajusta `parse_financial_value()` si usas otra moneda.
-
-## Depuración y pruebas rápidas
-
-### Extracción de datos
-
-```python
-from src.client import MicrosoftIRClient
-client = MicrosoftIRClient()
-reports = client.get_annual_reports()
-print(f"Encontrados {len(reports)} informes")
-```
-
-### Generación de tesis IA
-
-```python
-from src.gemini_ai import generate_financial_tesis
-import json
-
-# Cargar datos previamente extraídos
-with open("downloads/all_ms_financial_data.json") as f:
-    data = json.load(f)
-
-tesis = generate_financial_tesis(data)
-print(tesis)
-```
-
-### Visualización de gráficas
-
-```python
-from src.visualization import generate_tables
-import json
-
-with open("downloads/all_ms_financial_data.json") as f:
-    data = json.load(f)
-
-generate_tables(data)  # Muestra las dos gráficas
-```
-
-### Ejecutar tests
-
-```powershell
-pytest tests/ -v
-```
-
-## Cómo contribuir
-
-Proceso para contribuir:
-
-1. Fork del repositorio.
-2. Crear una rama de feature: `git checkout -b feat/nombre-feature`.
-3. Hacer PR con descripción clara y tests incluidos.
-
-## Contacto y licencia
-
-Si necesitas contactar al autor original, `juan.arabaolaza@gmail.com` (ver `pyproject.toml`).
+## Contacto
+Autor: Juan Arabaolaza Contacto: juan.arabaolaza@gmail.com
