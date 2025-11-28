@@ -24,6 +24,12 @@ dependencies = [
 "requests>=2.32.5",
 "beautifulsoup4>=4.14.2",
 "lxml>=6.0.2",
+"python-dotenv>=1.2.1",
+"google-genai>=1.52.0",
+"google-api-core>=2.28.1",
+"matplotlib>=3.10.7",
+"pandas>=2.3.3",
+"seaborn>=0.13.2"
 ]
 
 # --- DEPENDENCIAS DE DESARROLLO ---

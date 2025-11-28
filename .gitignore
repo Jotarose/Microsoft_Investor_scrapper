@@ -15,3 +15,6 @@ downloads/
 
 ## Ignoro archivos de tests
 irrelevant_path.json
+
+# Ignoro variables de entorno
+.env
