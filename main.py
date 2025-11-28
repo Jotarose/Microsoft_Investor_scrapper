@@ -51,7 +51,6 @@ def main():
         financial_tesis = generate_financial_tesis(clean_data)
         tesis_file_path = handle_file_path("financial_tesis.md")
         save_tesis(tesis_file_path, financial_tesis)
-        print(financial_tesis)
 
     except GeminiAIError as gaie:
         print(f"Error al generar la visualización con Gemini AI: {gaie}")
