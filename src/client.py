@@ -81,6 +81,21 @@ class MicrosoftIRClient:
 
         return self._parse_reports(all_annual_urls)
 
+    def get_url_content(self, annual_url: str) -> requests.Response:
+        """
+        Realiza una petición GET a una url de Annual report
+
+        Returns:
+            requests.Response: devuelve la respuesta ya cruda
+
+        Raises:
+            requests.RequestException: Si ocurre un error de red al conectar con Microsoft.
+        """
+        response = self._session.get(annual_url)
+        response.raise_for_status()
+
+        return response
+
     def _parse_reports(self, all_annual_urls: list[element.Tag]) -> list[Report]:
         """
         Procesa las etiquetas HTML crudas y extrae los datos estructurados.
@@ -107,3 +122,16 @@ class MicrosoftIRClient:
             reports.append(Report(year, url))
 
         return reports
+
+
+def main():
+
+    client = MicrosoftIRClient()
+    links = client.get_annual_reports()
+
+    for link in links:
+        print(link)
+
+
+if __name__ == "__main__":
+    main()
