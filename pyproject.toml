@@ -65,3 +65,8 @@ skip-magic-trailing-comma = false
 [tool.ruff]
 # Esto activa el formato tipo Black
 preview = true
+
+# --- CONFIGURACION DE LA RUTA DE LOS TESTS ---
+[tool.pytest.ini_options]
+pythonpath = "."
+testpaths = ["tests"]
